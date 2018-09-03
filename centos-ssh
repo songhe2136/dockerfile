@@ -1,0 +1,23 @@
+# 1.Bash image
+FROM hub.abc.com/public/centos:7.5
+# 2.Author
+MAINTAINER zsh
+
+# 3.Image exec
+# install openssh
+RUN yum install openssh-server openssh-clients openssh-devel -y && \
+    yum clean all
+# chg ssh config
+RUN ssh-keygen -t dsa -f /etc/ssh/ssh_host_dsa_key && \
+    ssh-keygen -t rsa -f /etc/ssh/ssh_host_rsa_key
+# set user/password
+RUN useradd centos && echo "centos:123456" | chpasswd
+RUN echo "centos   ALL=(ALL)       ALL" >> /etc/sudoers
+# chg supervisor config
+RUN sed -i 's/nodaemon=false/nodaemon=true/' /etc/supervisord.conf
+RUN echo -e "[program:sshd]\ncommand=/usr/sbin/sshd -D\nprocess_name=%(program_name)s\nautostart=true" \
+>>/etc/supervisord.d/sshd.ini
+# Outside port
+EXPOSE 22
+# 4.Container exec
+CMD ["/usr/bin/supervisord","-c","/etc/supervisord.conf"]
