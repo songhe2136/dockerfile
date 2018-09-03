@@ -1,0 +1,12 @@
+# 1.Base image
+FROM centos
+# 2.Maintainer
+MAINTAINER zsh
+
+# 3.Image exec
+RUN rpm -ivh https://mirrors.aliyun.com/epel/epel-release-latest-7.noarch.rpm 
+RUN yum install -y net-tools telnet wget sudo less ntpdate git supervisor \
+    && yum clean all
+# set timezone
+RUN /bin/cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
+    && echo 'Asia/Shanghai' >/etc/timezone
